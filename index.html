@@ -1,22 +1,41 @@
-<!DOCTYPE html5>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Canvas</title>
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/onnxjs/dist/onnx.min.js"></script> -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Drawing</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: white;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body >
-    <!-- <p id="para">hellow</p> -->
-    <!-- <div>
-        <img id="image" src="#" />
-    </div> -->
-    <canvas id="canvas" style="background-color: black;">{HTMLElement:canvas}</canvas>
-    <p id="mousepos"></p>
-    <input type="button" id="downloadBtn" value="Download">
-    <h3>canvas reflecting og canvas</h3>
-    <canvas id="reflct_canvas" width="720" height="720" style="background-color: black;">alt</canvas>
-    <p><code>alt</code> + <code>click</code> to clear the canvas</p>
-    <button id="showImage">reflect</button>
-    <script src="./canvas.js"></script>
+<body>
+
+    <canvas id="drawingCanvas" width="720" height="720"></canvas>
+    <div class="buttons">
+        <button id="downloadBtn">Download</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+
+    <script src="canvas_utils.js"></script>
 </body>
 </html>
