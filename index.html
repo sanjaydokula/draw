@@ -1,41 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Drawing</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        canvas {
-            border: 1px solid #000;
-            background-color: white;
-        }
-        .buttons {
-            margin-top: 10px;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canvas Drawing</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+    canvas {
+      border: 1px solid #000;
+      background-color: white;
+    }
+    .buttons {
+      margin-top: 10px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result_display {
+      margin-top: 5px;
+      padding: 5px;
+      border: 2px solid lightgray;
+    }
+  </style>
 </head>
 <body>
 
-    <canvas id="drawingCanvas" width="720" height="720"></canvas>
-    <div class="buttons">
-        <button id="downloadBtn">Download</button>
-        <button id="resetBtn">Reset</button>
-    </div>
+  <canvas id="drawingCanvas" width="720" height="720"></canvas>
+  <div class="buttons">
+    <button id="downloadBtn">Download</button>
+    <button id="resetBtn">Reset</button>
+    <button id="predictBtn">Predict</button>
+  </div>
+  <div id="prediction_display"></div>
 
-    <script src="canvas_utils.js"></script>
+  <script src="canvas_utils.js"></script>
 </body>
 </html>
