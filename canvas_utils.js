@@ -1,3 +1,5 @@
+import {itoc} from './classes.js';
+
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("drawingCanvas");
   const result_display = document.getElementById("prediction_display");
@@ -5,16 +7,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const downloadBtn = document.getElementById("downloadBtn");
   const resetBtn = document.getElementById("resetBtn");
   const predictBtn = document.getElementById("predictBtn"); // Fixed: 'document', not 'Document'
-
   let drawing = false;
   let session = null;
   let model_available = false;
   // Set the canvas background so that the download includes a background
   function setCanvasBackground() {
-    ctx.fillStyle = "#fff"; // White background
+    ctx.fillStyle = "#000"; // White background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // ctx.fillStyle = "green";
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = "white";
     ctx.lineWidth = 14;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -81,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function load_model() {
     try {
-      session = await ort.InferenceSession.create('debug_onnx.onnx');
+      session = await ort.InferenceSession.create('draw.onnx');
       console.log('model loaded')
       console.log(session)
       // model_available = true
@@ -125,7 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     console.log('class ' + classidx)
-    setResult(classidx);
+    class_name = itoc[classidx.toString()]
+    setResult(class_name);
 
 }
 
