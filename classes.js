@@ -1,5 +1,5 @@
 // classMappings.js  
-const itoc = {
+export const itoc = {
     "0": "The Eiffel Tower",
     "1": "airplane",
     "2": "ambulance",
@@ -16,5 +16,5 @@ const itoc = {
   };
   
   // Alternative: Export as a single object
-export default {itoc};
+// export default {itoc};
   

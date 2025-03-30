@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // ctx.fillStyle = "green";
     ctx.strokeStyle = "white";
-    ctx.lineWidth = 14;
+    ctx.lineWidth = 28;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
   }
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function load_model() {
     try {
-      session = await ort.InferenceSession.create('draw.onnx');
+      session = await ort.InferenceSession.create('working_model_on_colab.onnx');
       console.log('model loaded')
       console.log(session)
       // model_available = true
@@ -93,21 +93,78 @@ document.addEventListener("DOMContentLoaded", () => {
     
   }
 
+  function downsampleCanvas(inputCanvas, targetSize = 28) {
+    // Validate input size
+    if (inputCanvas.width !== 720 || inputCanvas.height !== 720) {
+        throw new Error("Input canvas must be 720x720 pixels");
+    }
+
+    let currentCanvas = inputCanvas;
+    let currentSize = 720;
+
+    // Progressive downsampling with bilinear interpolation
+    while (currentSize > targetSize * 2) {
+        const nextSize = currentSize / 2;
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = nextSize;
+        tempCanvas.height = nextSize;
+        
+        const ctx = tempCanvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(currentCanvas, 0, 0, nextSize, nextSize);
+        
+        currentCanvas = tempCanvas;
+        currentSize = nextSize;
+    }
+
+    // Final resize with nearest neighbor interpolation
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = targetSize;
+    finalCanvas.height = targetSize;
+    
+    const finalCtx = finalCanvas.getContext('2d');
+    finalCtx.imageSmoothingEnabled = false;
+    finalCtx.drawImage(currentCanvas, 0, 0, targetSize, targetSize);
+
+    return finalCanvas;
+  }
+
   async function predict(){
     // get image data from canvas
 
-    let rect = canvas.getClientRects()["0"];
-    let width = rect["width"];
-    let height = rect["height"];
-    const canvasImageData = ctx.getImageData(0, 0, width, height)
-    floatCanvasData = Float32Array.from(canvasImageData.data)
+    const scaled_canvas = downsampleCanvas(canvas,28)
+    console.log('scaled canvas')
+    console.log(scaled_canvas)
+    const scaled_ctx = scaled_canvas.getContext('2d')
+    let rect = scaled_canvas.getClientRects()["0"];
+    // console.log(rect)
+    let width = 28;
+    let height = 28;
+    const canvasImageData = scaled_ctx.getImageData(0, 0, width, height)
+    let floatCanvasData = Float32Array.from(canvasImageData.data)
     console.log('type '+typeof(canvasImageData))
     console.log(canvasImageData)
     console.log(floatCanvasData)
 
-    const imageTensor = new ort.Tensor('float32', floatCanvasData, [1,4,720,720]);
+    const imageTensor = new ort.Tensor('float32', floatCanvasData, [1,4,28,28]);
     console.log(imageTensor)
-    const feeds = { input: imageTensor };
+    const firstChannelData = imageTensor.data.subarray(0, 28 * 28); // Take only the first 28x28 section
+    console.log('first channel')
+    console.log(firstChannelData)
+    // Create a new Tensor with shape [1, 28, 28]
+    let firstChannelTensor = new ort.Tensor('float32', firstChannelData, [1,1, 28, 28]);
+    console.log("firschannel tensor")
+    console.log(firstChannelTensor)
+    console.log(firstChannelTensor.data.length)
+    for (let index = 0; index < firstChannelTensor.data.length; index++) {
+      console.log('normalising')
+      console.log(firstChannelTensor.data[index])
+      firstChannelTensor.data[index] = firstChannelTensor.data[index]/255.0;
+      
+    }
+    console.log("nomralised first channel tensor")
+    console.log(firstChannelTensor)
+    const feeds = { input: firstChannelTensor };
 
     const results = await session.run(feeds);
 
@@ -126,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     console.log('class ' + classidx)
-    class_name = itoc[classidx.toString()]
+    let class_name = itoc[classidx.toString()]
     setResult(class_name);
 
 }
