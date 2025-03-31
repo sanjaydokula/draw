@@ -83,12 +83,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function load_model() {
     try {
-      session = await ort.InferenceSession.create('draw_preprocess.onnx');
+      session = await ort.InferenceSession.create('draw_preprocessv2.onnx');
       console.log('model loaded')
       console.log(session)
       // model_available = true
     } catch (error) {
-      console.log('model fucked')
+      console.log('failed to load the onnx model')
       console.log(error)
     }
 
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let rect = scaled_canvas.getClientRects()["0"];
   }
 
-  function get_image_data() {
+  function get_image_data(canvas) {
     let rect = canvas.getClientRects()["0"]
     console.log(rect)
     let width = rect.width;
@@ -153,14 +153,15 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(floatCanvasData)
     const imageTensor = new ort.Tensor('float32', floatCanvasData, [1, 4, 720, 720]);
     console.log(imageTensor)
-    const firstChannelData = imageTensor.data.subarray(0, 720 * 720); // Take only the first 28x28 section
-    console.log('first channel')
-    console.log(firstChannelData)
-    // Create a new Tensor with shape [1, 28, 28]
-    let firstChannelTensor = new ort.Tensor('float32', firstChannelData, [1, 1, 720, 720]);
-    console.log("firschannel tensor")
-    console.log(firstChannelTensor)
-    console.log(firstChannelTensor.data.length)
+    // const firstChannelData = imageTensor.data.subarray(0, 720 * 720); // Take only the first 28x28 section
+    // console.log('first channel')
+    // console.log(firstChannelData)
+    // // Create a new Tensor with shape [1, 28, 28]
+    // let firstChannelTensor = new ort.Tensor('float32', firstChannelData, [1, 1, 720, 720]);
+    // console.log("firschannel tensor")
+    // console.log(firstChannelTensor)
+    // console.log(firstChannelTensor.data.length)
+    return imageTensor
   }
 
   function normalise() {
@@ -175,9 +176,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   async function predict() {
 
+    const image_tensor=get_image_data(canvas)
 
-
-    const feeds = { input: firstChannelTensor };
+    const feeds = { input: image_tensor };
 
     const results = await session.run(feeds);
 
