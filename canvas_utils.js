@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(session)
       // model_available = true
     } catch (error) {
-      console.log('model fucked')
+      console.log('failed to load the onnx model')
       console.log(error)
     }
     
