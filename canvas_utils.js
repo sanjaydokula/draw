@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.stroke();
   });
 
+
   // Stop drawing when mouse is released or leaves canvas
   canvas.addEventListener("mouseup", () => (drawing = false));
   canvas.addEventListener("mouseleave", () => (drawing = false));
@@ -82,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function load_model() {
     try {
-      session = await ort.InferenceSession.create('working_model_on_colab.onnx');
+      session = await ort.InferenceSession.create('draw_preprocess.onnx');
       console.log('model loaded')
       console.log(session)
       // model_available = true
@@ -132,38 +133,40 @@ document.addEventListener("DOMContentLoaded", () => {
   async function predict(){
     // get image data from canvas
 
-    const scaled_canvas = downsampleCanvas(canvas,28)
-    console.log('scaled canvas')
-    console.log(scaled_canvas)
-    const scaled_ctx = scaled_canvas.getContext('2d')
-    let rect = scaled_canvas.getClientRects()["0"];
-    // console.log(rect)
-    let width = 28;
-    let height = 28;
-    const canvasImageData = scaled_ctx.getImageData(0, 0, width, height)
+    // const scaled_canvas = downsampleCanvas(canvas,28)
+    // console.log('scaled canvas')
+    // console.log(scaled_canvas)
+    // const scaled_ctx = scaled_canvas.getContext('2d')
+    // let rect = scaled_canvas.getClientRects()["0"];
+    let rect = canvas.getClientRects()["0"]
+    console.log(rect)
+    let width = rect.width;
+    let height = rect.height;
+    const canvasImageData = ctx.getImageData(0, 0, width, height)
     let floatCanvasData = Float32Array.from(canvasImageData.data)
     console.log('type '+typeof(canvasImageData))
     console.log(canvasImageData)
     console.log(floatCanvasData)
 
-    const imageTensor = new ort.Tensor('float32', floatCanvasData, [1,4,28,28]);
+    const imageTensor = new ort.Tensor('float32', floatCanvasData, [1,4,720,720]);
     console.log(imageTensor)
-    const firstChannelData = imageTensor.data.subarray(0, 28 * 28); // Take only the first 28x28 section
+    const firstChannelData = imageTensor.data.subarray(0, 720 * 720); // Take only the first 28x28 section
     console.log('first channel')
     console.log(firstChannelData)
     // Create a new Tensor with shape [1, 28, 28]
-    let firstChannelTensor = new ort.Tensor('float32', firstChannelData, [1,1, 28, 28]);
+    let firstChannelTensor = new ort.Tensor('float32', firstChannelData, [1,1, 720, 720]);
     console.log("firschannel tensor")
     console.log(firstChannelTensor)
     console.log(firstChannelTensor.data.length)
-    for (let index = 0; index < firstChannelTensor.data.length; index++) {
-      console.log('normalising')
-      console.log(firstChannelTensor.data[index])
-      firstChannelTensor.data[index] = firstChannelTensor.data[index]/255.0;
+
+    // for (let index = 0; index < firstChannelTensor.data.length; index++) {
+    //   // console.log('normalising')
+    //   // console.log(firstChannelTensor.data[index])
+    //   firstChannelTensor.data[index] = firstChannelTensor.data[index]/255.0;
       
-    }
-    console.log("nomralised first channel tensor")
-    console.log(firstChannelTensor)
+    // }
+    // console.log("nomralised first channel tensor")
+    // console.log(firstChannelTensor)
     const feeds = { input: firstChannelTensor };
 
     const results = await session.run(feeds);
