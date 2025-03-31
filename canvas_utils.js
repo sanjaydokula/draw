@@ -1,4 +1,4 @@
-import {itoc} from './classes.js';
+import { itoc } from './classes.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("drawingCanvas");
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     result_display.innerHTML = '<h4 class="result_display">test result</h4>';
     result_display.innerText = result
   }
-  
+
   // Initialize the canvas with a background
   setCanvasBackground();
 
@@ -72,10 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(model_available)
     await load_model()
     console.log(model_available)
-    if (model_available == true){
+    if (model_available == true) {
       // canvas.ELEMENT_NODE.disabled = false
       canvas.disabled = false
-    }else{
+    } else {
       // canvas.ELEMENT_NODE.disabled = true
       canvas.disabled = true
     }
@@ -91,13 +91,13 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log('model fucked')
       console.log(error)
     }
-    
+
   }
 
   function downsampleCanvas(inputCanvas, targetSize = 28) {
     // Validate input size
     if (inputCanvas.width !== 720 || inputCanvas.height !== 720) {
-        throw new Error("Input canvas must be 720x720 pixels");
+      throw new Error("Input canvas must be 720x720 pixels");
     }
 
     let currentCanvas = inputCanvas;
@@ -105,24 +105,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Progressive downsampling with bilinear interpolation
     while (currentSize > targetSize * 2) {
-        const nextSize = currentSize / 2;
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = nextSize;
-        tempCanvas.height = nextSize;
-        
-        const ctx = tempCanvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(currentCanvas, 0, 0, nextSize, nextSize);
-        
-        currentCanvas = tempCanvas;
-        currentSize = nextSize;
+      const nextSize = currentSize / 2;
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = nextSize;
+      tempCanvas.height = nextSize;
+
+      const ctx = tempCanvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(currentCanvas, 0, 0, nextSize, nextSize);
+
+      currentCanvas = tempCanvas;
+      currentSize = nextSize;
     }
 
     // Final resize with nearest neighbor interpolation
     const finalCanvas = document.createElement('canvas');
     finalCanvas.width = targetSize;
     finalCanvas.height = targetSize;
-    
+
     const finalCtx = finalCanvas.getContext('2d');
     finalCtx.imageSmoothingEnabled = false;
     finalCtx.drawImage(currentCanvas, 0, 0, targetSize, targetSize);
@@ -130,43 +130,53 @@ document.addEventListener("DOMContentLoaded", () => {
     return finalCanvas;
   }
 
-  async function predict(){
+
+  function preprocess() {
     // get image data from canvas
 
-    // const scaled_canvas = downsampleCanvas(canvas,28)
-    // console.log('scaled canvas')
-    // console.log(scaled_canvas)
-    // const scaled_ctx = scaled_canvas.getContext('2d')
-    // let rect = scaled_canvas.getClientRects()["0"];
+    const scaled_canvas = downsampleCanvas(canvas, 28)
+    console.log('scaled canvas')
+    console.log(scaled_canvas)
+    const scaled_ctx = scaled_canvas.getContext('2d')
+    let rect = scaled_canvas.getClientRects()["0"];
+  }
+
+  function get_image_data() {
     let rect = canvas.getClientRects()["0"]
     console.log(rect)
     let width = rect.width;
     let height = rect.height;
     const canvasImageData = ctx.getImageData(0, 0, width, height)
     let floatCanvasData = Float32Array.from(canvasImageData.data)
-    console.log('type '+typeof(canvasImageData))
+    console.log('type ' + typeof (canvasImageData))
     console.log(canvasImageData)
     console.log(floatCanvasData)
-
-    const imageTensor = new ort.Tensor('float32', floatCanvasData, [1,4,720,720]);
+    const imageTensor = new ort.Tensor('float32', floatCanvasData, [1, 4, 720, 720]);
     console.log(imageTensor)
     const firstChannelData = imageTensor.data.subarray(0, 720 * 720); // Take only the first 28x28 section
     console.log('first channel')
     console.log(firstChannelData)
     // Create a new Tensor with shape [1, 28, 28]
-    let firstChannelTensor = new ort.Tensor('float32', firstChannelData, [1,1, 720, 720]);
+    let firstChannelTensor = new ort.Tensor('float32', firstChannelData, [1, 1, 720, 720]);
     console.log("firschannel tensor")
     console.log(firstChannelTensor)
     console.log(firstChannelTensor.data.length)
+  }
 
-    // for (let index = 0; index < firstChannelTensor.data.length; index++) {
-    //   // console.log('normalising')
-    //   // console.log(firstChannelTensor.data[index])
-    //   firstChannelTensor.data[index] = firstChannelTensor.data[index]/255.0;
-      
-    // }
-    // console.log("nomralised first channel tensor")
-    // console.log(firstChannelTensor)
+  function normalise() {
+    for (let index = 0; index < firstChannelTensor.data.length; index++) {
+      // console.log('normalising')
+      // console.log(firstChannelTensor.data[index])
+      firstChannelTensor.data[index] = firstChannelTensor.data[index] / 255.0;
+
+    }
+    console.log("nomralised first channel tensor")
+    console.log(firstChannelTensor)
+  }
+  async function predict() {
+
+
+
     const feeds = { input: firstChannelTensor };
 
     const results = await session.run(feeds);
@@ -179,18 +189,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // console.log("Inference Result:", res);
     let classidx = -1
     console.log("prediction:", pred);
-    for(let i=0;i<predictions.length;i++){
-        if(predictions[i]===pred){
-            classidx = i;
-            // console.log(i);
-        }
+    for (let i = 0; i < predictions.length; i++) {
+      if (predictions[i] === pred) {
+        classidx = i;
+        // console.log(i);
+      }
     }
     console.log('class ' + classidx)
     let class_name = itoc[classidx.toString()]
     setResult(class_name);
 
-}
-
+  }
 
   main()
 });
