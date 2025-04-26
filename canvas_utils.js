@@ -1,5 +1,9 @@
-import {itoc} from './classes.js';
+import { itoc } from './classes.js';
+// import * as tf from '@tensorflow/tfjs';
+// import {loadGraphModel} from '@tensorflow/tfjs-converter';
 
+const MODEL_URL = 'tfmodel/model.json';
+let model = null;
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("drawingCanvas");
   const result_display = document.getElementById("prediction_display");
@@ -12,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let model_available = false;
   // Set the canvas background so that the download includes a background
   function setCanvasBackground() {
-    ctx.fillStyle = "#000"; // White background
+    ctx.fillStyle = "#000"; // black background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // ctx.fillStyle = "green";
     ctx.strokeStyle = "white";
@@ -55,7 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Display prediction result
   predictBtn.addEventListener("click", () => {
-    predict()
+    // predict()
+    predict_tf()
   });
 
   // Download the entire canvas as an image
@@ -69,7 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function main() {
     console.log(model_available)
-    await load_model()
+    // await load_model()
+    await load_tf_model()
     console.log(model_available)
     if (model_available == true){
       // canvas.ELEMENT_NODE.disabled = false
@@ -90,8 +96,26 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log('failed to load the onnx model')
       console.log(error)
     }
-    
+
   }
+  async function load_tf_model() { 
+    model = await tf.loadGraphModel(MODEL_URL);
+    model_available=true
+  }
+  async function predict_tf() {
+    const scaled_canvas = downsampleCanvas(canvas,28)
+    const scaled_ctx = scaled_canvas.getContext('2d')
+    let width = 28;
+    let height = 28;
+    const canvasImageData = scaled_ctx.getImageData(0, 0, width, height)
+    let imageTensor = tf.browser.fromPixels(canvasImageData,1)
+    // const secondChannel = imageTensor.slice([0, 0, 1], [-1, -1, 1]);
+    // console.log(secondChannel.reshape(1,28,28,1))
+    imageTensor = imageTensor.reshape([1,28,28,1])
+    imageTensor = tf.cast(imageTensor,'float32')
+    const prediction = await model.execute(imageTensor);
+    console.log(tf.softmax(prediction))
+  }  
 
   function downsampleCanvas(inputCanvas, targetSize = 28) {
     // Validate input size
@@ -140,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // console.log(rect)
     let width = 28;
     let height = 28;
-    const canvasImageData = scaled_ctx.getImageData(0, 0, width, height)
+    // const canvasImageData = scaled_ctx.getImageData(0, 0, width, height)
     let floatCanvasData = Float32Array.from(canvasImageData.data)
     console.log('type '+typeof(canvasImageData))
     console.log(canvasImageData)
