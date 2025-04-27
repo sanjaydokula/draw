@@ -113,8 +113,24 @@ document.addEventListener("DOMContentLoaded", () => {
     // console.log(secondChannel.reshape(1,28,28,1))
     imageTensor = imageTensor.reshape([1,28,28,1])
     imageTensor = tf.cast(imageTensor,'float32')
-    const prediction = await model.execute(imageTensor);
-    console.log(tf.softmax(prediction))
+    let results = await model.execute(imageTensor);
+    results = tf.softmax(results)
+    const values = results.dataSync();
+    results.dispose();
+    // console.log(values.length)
+    let pred = Math.max(...values)
+    // console.log(pred)
+    let classidx = -1
+    // console.log("prediction:", pred);
+    for(let i=0;i<values.length;i++){
+        if(values[i]===pred){
+            classidx = i;
+            // console.log(i);
+        }
+    }
+    let class_name = itoc[classidx.toString()]
+    setResult(class_name);
+
   }  
 
   function downsampleCanvas(inputCanvas, targetSize = 28) {
