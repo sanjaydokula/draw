@@ -9,7 +9,7 @@ let modelAvailable = false;
  * @param {string} url - Path to the model.json file
  * @param {any} model - TfJs loaded model.
  */
-export async function loadTfModel(url = 'tfmodel/model.json') {
+export async function loadTfModel(url) {
   model = await tf.loadGraphModel(url);
   modelAvailable = true;
   return model;
@@ -32,8 +32,10 @@ export async function predictFromCanvas(canvas) {
     .cast('float32');
 
   const logits = model.execute(tensor);
+  console.log(logits.dataSync());
   const probs = tf.softmax(logits);
   const values = probs.dataSync();
+  console.log(values);
   tf.dispose([tensor, logits, probs]);
 
   let maxIdx = values.indexOf(Math.max(...values));
