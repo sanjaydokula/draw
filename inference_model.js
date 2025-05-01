@@ -9,7 +9,7 @@ let modelAvailable = false;
  * @param {string} url - Path to the model.json file
  * @param {any} model - TfJs loaded model.
  */
-export async function loadTfModel(url = 'tfmodel/model.json') {
+export async function loadTfModel(url = 'tfmodel_may1/model.json') {
   model = await tf.loadGraphModel(url);
   modelAvailable = true;
   return model;
