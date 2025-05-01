@@ -1,20 +1,32 @@
 // classMappings.js  
-export const itoc = {
-    "0": "The Eiffel Tower",
-    "1": "airplane",
-    "2": "ambulance",
-    "3": "anvil",
-    "4": "apple",
-    "5": "axe",
-    "6": "banana",
-    "7": "barn",
-    "8": "baseball bat",
-    "9": "baseball",
-    "10": "basketball",
-    "11": "bench",
-    "12": "bicycle"
-  };
+export const itoc = {"0": "The Eiffel Tower",
+  "1": "airplane",
+  "2": "ambulance",
+  "3": "anvil",
+  "4": "apple",
+  "5": "axe",
+  "6": "banana",
+  "7": "barn",
+  "8": "baseball bat",
+  "9": "baseball",
+  "10": "basketball",
+  "11": "bee",
+  "12": "bench",
+  "13": "bicycle",
+  "14": "boomerang",
+  "15": "cactus",
+  "16": "castle",
+  "17": "donut",
+  "18": "ice cream",
+  "19": "lantern",
+  "20": "shark",
+  "21": "skateboard",
+  "22": "skull",
+  "23": "snail",
+  "24": "tree",
+  "25": "trombone",
+  "26": "truck",
+  "27": "vase"};
   
   // Alternative: Export as a single object
 // export default {itoc};
-  

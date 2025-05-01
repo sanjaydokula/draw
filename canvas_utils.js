@@ -1,7 +1,7 @@
 // canvas_utils.js (manages canvas interactions & UI)
 import { loadTfModel, predictFromCanvas, isModelAvailable } from './inference_model.js';
 
-const MODEL_URL = 'tfmodel/model.json';
+const MODEL_URL = 'tfmodel_may1/model.json';
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('drawingCanvas');
