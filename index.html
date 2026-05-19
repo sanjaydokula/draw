@@ -124,8 +124,15 @@ tailwind.config = {
 
       <!-- Left Column: Canvas -->
       <div class="flex flex-col items-center lg:items-start">
-        <div class="mb-6 lg:mb-8">
-          <span class="font-label-sm text-label-sm text-text-muted uppercase tracking-[0.2em] mb-2 block">Drawing Interface</span>
+        <div class="w-full flex items-center justify-between mb-6 lg:mb-8">
+          <span class="font-label-sm text-label-sm text-text-muted uppercase tracking-[0.2em]">Drawing Interface</span>
+          <span id="modelStatus" class="font-label-sm text-[11px] text-primary flex items-center gap-1.5">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" id="statusPing"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" id="statusDot"></span>
+            </span>
+            LOADING
+          </span>
         </div>
         <div class="relative group">
           <!-- Corner Accents -->
@@ -160,20 +167,10 @@ tailwind.config = {
         </div>
 
         <!-- Meta Data -->
-        <div class="space-y-6 lg:space-y-8 border-t border-border-subtle pt-6 lg:pt-8">
-          <div>
-            <span class="font-label-sm text-[10px] text-text-muted uppercase tracking-[0.2em] mb-2 block [font-variant:small-caps]">Prediction</span>
-            <span id="prediction_display" class="font-headline-lg text-headline-lg text-primary block">—</span>
-          </div>
-          <div>
-            <span class="font-label-sm text-[10px] text-text-muted uppercase tracking-[0.2em] mb-2 block [font-variant:small-caps]">System Status</span>
-            <span id="modelStatus" class="font-label-sm text-label-sm text-primary flex items-center gap-2">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" id="statusPing"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" id="statusDot"></span>
-              </span>
-              LOADING
-            </span>
+        <div class="border-t border-border-subtle pt-6 lg:pt-8">
+          <span class="font-label-sm text-[10px] text-text-muted uppercase tracking-[0.2em] mb-3 block [font-variant:small-caps]">Top Predictions</span>
+          <div id="prediction_display" class="min-h-[120px]">
+            <span class="text-text-muted font-label-sm text-label-sm">—</span>
           </div>
         </div>
 
