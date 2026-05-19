@@ -10,8 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadBtn = document.getElementById('downloadBtn');
   const resetBtn = document.getElementById('resetBtn');
   const predictBtn = document.getElementById('predictBtn');
+  const statusEl = document.getElementById('modelStatus');
 
   let drawing = false;
+
+  function getCanvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * (canvas.width / rect.width),
+      y: (e.clientY - rect.top) * (canvas.height / rect.height)
+    };
+  }
 
   function setCanvasBackground() {
     ctx.fillStyle = '#000';
@@ -26,14 +35,27 @@ document.addEventListener('DOMContentLoaded', () => {
     resultDisplay.innerText = text;
   }
 
+  function setStatus(state) {
+    if (!statusEl) return;
+    if (state === 'loading') {
+      statusEl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-yellow-500 animate-pulse mr-2"></span>LOADING';
+    } else if (state === 'ready') {
+      statusEl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>READY';
+    } else if (state === 'error') {
+      statusEl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>ERROR';
+    }
+  }
+
   canvas.addEventListener('mousedown', e => {
     drawing = true;
+    const p = getCanvasCoords(e);
     ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+    ctx.moveTo(p.x, p.y);
   });
   canvas.addEventListener('mousemove', e => {
     if (!drawing) return;
-    ctx.lineTo(e.offsetX, e.offsetY);
+    const p = getCanvasCoords(e);
+    ctx.lineTo(p.x, p.y);
     ctx.stroke();
   });
   ['mouseup', 'mouseleave'].forEach(evt =>
@@ -60,8 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize
   setCanvasBackground();
+  setStatus('loading');
   loadTfModel(MODEL_URL).then(() => {
     canvas.disabled = !isModelAvailable();
+    setStatus('ready');
     console.log('Model ready:', isModelAvailable());
+  }).catch(() => {
+    setStatus('error');
   });
 });
