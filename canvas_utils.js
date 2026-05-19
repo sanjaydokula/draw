@@ -40,18 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const top = predictions[0];
     const rest = predictions.slice(1);
-    const topScore = top.logit != null ? top.logit.toFixed(1) : '';
+    const topRaw = top.logit != null ? top.logit.toFixed(1) : '';
     let html = '<div class="flex items-center justify-between gap-4 mb-3">' +
       '<span class="font-headline-lg text-headline-lg text-primary">' + top.name + '</span>' +
-      '<span class="font-label-sm text-label-sm text-text-muted tabular-nums">' + topScore + '</span>' +
+      '<span class="font-label-sm text-label-sm text-text-muted tabular-nums">' + topRaw + '</span>' +
       '</div>';
     if (rest.length > 0) {
       html += '<div class="space-y-1.5 border-t border-border-subtle pt-3">';
       rest.forEach(p => {
-        const score = p.logit != null ? p.logit.toFixed(1) : '';
+        const raw = p.logit != null ? p.logit.toFixed(1) : '';
         html += '<div class="flex items-center justify-between gap-4 text-[13px]">' +
           '<span class="text-text-muted">' + p.name + '</span>' +
-          '<span class="text-text-muted tabular-nums">' + score + '</span>' +
+          '<span class="text-text-muted tabular-nums">' + raw + '</span>' +
           '</div>';
       });
       html += '</div>';
