@@ -10,7 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadBtn = document.getElementById('downloadBtn');
   const resetBtn = document.getElementById('resetBtn');
   const predictBtn = document.getElementById('predictBtn');
-  const statusEl = document.getElementById('modelStatus');
+  const statusPing = document.getElementById('statusPing');
+  const statusDot = document.getElementById('statusDot');
+  const statusLabel = document.getElementById('modelStatus');
 
   let drawing = false;
 
@@ -36,13 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setStatus(state) {
-    if (!statusEl) return;
+    if (!statusPing || !statusDot || !statusLabel) return;
     if (state === 'loading') {
-      statusEl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-yellow-500 animate-pulse mr-2"></span>LOADING';
+      statusPing.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75';
+      statusDot.className = 'relative inline-flex rounded-full h-2 w-2 bg-yellow-500';
+      statusLabel.childNodes[statusLabel.childNodes.length - 1].textContent = ' LOADING';
     } else if (state === 'ready') {
-      statusEl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>READY';
+      statusPing.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75';
+      statusDot.className = 'relative inline-flex rounded-full h-2 w-2 bg-green-500';
+      statusLabel.childNodes[statusLabel.childNodes.length - 1].textContent = ' READY';
     } else if (state === 'error') {
-      statusEl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>ERROR';
+      statusPing.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75';
+      statusDot.className = 'relative inline-flex rounded-full h-2 w-2 bg-red-500';
+      statusLabel.childNodes[statusLabel.childNodes.length - 1].textContent = ' ERROR';
     }
   }
 
