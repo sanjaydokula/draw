@@ -16,11 +16,12 @@ export async function loadTfModel(url) {
 }
 
 /**
- * Predicts the class for a given canvas by downsampling and running the model.
+ * Predicts the top N classes for a given canvas by downsampling and running the model.
  * @param {HTMLCanvasElement} canvas
- * @returns {Promise<string>} - Predicted class name
+ * @param {number} topK - Number of top predictions to return (default 4)
+ * @returns {Promise<Array<{name: string, confidence: number}>>}
  */
-export async function predictFromCanvas(canvas) {
+export async function predictFromCanvas(canvas, topK = 4) {
   if (!modelAvailable) throw new Error('Model not loaded');
 
   // Step 1: Center the drawing (boundary detection + crop + center)
@@ -36,15 +37,21 @@ export async function predictFromCanvas(canvas) {
     .reshape([1, 28, 28, 1])
     .cast('float32');
 
-  const logits = model.execute(tensor);
-  console.log(logits.dataSync());
-  const probs = tf.softmax(logits);
-  const values = probs.dataSync();
-  console.log(values);
-  tf.dispose([tensor, logits, probs]);
+  const logitsTensor = model.execute(tensor);
+  const rawLogits = Array.from(logitsTensor.dataSync());
+  const probs = tf.softmax(logitsTensor);
+  const softmaxValues = Array.from(probs.dataSync());
+  tf.dispose([tensor, logitsTensor, probs]);
 
-  let maxIdx = values.indexOf(Math.max(...values));
-  return itoc[maxIdx.toString()];
+  const indices = softmaxValues.map((v, i) => i)
+    .sort((a, b) => softmaxValues[b] - softmaxValues[a])
+    .slice(0, topK);
+
+  return indices.map(i => ({
+    name: itoc[i.toString()] || `class_${i}`,
+    confidence: softmaxValues[i],
+    logit: rawLogits[i]
+  }));
 }
 
 /**
